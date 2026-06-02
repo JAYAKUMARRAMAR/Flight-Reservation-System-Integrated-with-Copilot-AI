@@ -1,6 +1,7 @@
 package com.jaya.flightreserv.flightreservation.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import com.jaya.flightreserv.flightreservation.entities.Reservation;
 import com.jaya.flightreserv.flightreservation.repos.ReservationRepository;
 
 @RestController
+@CrossOrigin
 public class ReservationRestController {
    
     @Autowired
