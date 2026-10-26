@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class Checkin {
-  private apiUrl = 'http://localhost:8080/flightreservation/reservations';
+  private apiUrl = 'http://localhost:8083/flightreservation/reservations';
   reservationData: any;
 
   constructor(private http: HttpClient) {}
