@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.jaya.flightreserv.flightreservation.services.AiProviderUnavailableException;
+import com.jaya.flightreserv.flightreservation.services.ProjectDataContextService;
 import com.jaya.flightreserv.flightreservation.services.OllamaChatService;
 
 @WebMvcTest(ChatController.class)
@@ -25,9 +27,13 @@ class ChatControllerTest {
     @MockitoBean
     private OllamaChatService chatService;
 
+    @MockitoBean
+    private ProjectDataContextService projectDataContextService;
+
     @Test
     void returnsProviderReplyForMessage() throws Exception {
-        given(chatService.reply("Hello")).willReturn("Hi there");
+        given(projectDataContextService.getContext()).willReturn("{\"flights\":[]}");
+        given(chatService.reply("Hello", "{\"flights\":[]}")).willReturn("Hi there");
 
         mockMvc.perform(post("/api/chat")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -42,12 +48,13 @@ class ChatControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"message\":\" \"}"))
                 .andExpect(status().isBadRequest());
-        verify(chatService, never()).reply(" ");
+        verify(chatService, never()).reply(anyString(), anyString());
     }
 
     @Test
     void reportsMissingProviderConfiguration() throws Exception {
-        given(chatService.reply("Hello"))
+        given(projectDataContextService.getContext()).willReturn("{\"flights\":[]}");
+        given(chatService.reply("Hello", "{\"flights\":[]}"))
                 .willThrow(new AiProviderUnavailableException("The Ollama model is not configured"));
 
         mockMvc.perform(post("/api/chat")

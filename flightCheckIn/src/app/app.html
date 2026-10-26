@@ -1,3 +1,50 @@
-<h1>Flight CheckIn</h1>
-<button routerLink="/startCheckIn">Start</button>
-<router-outlet></router-outlet>
+<main class="app-shell">
+  <header class="app-header">
+    <h1>Flight CheckIn</h1>
+    <nav class="header-actions" aria-label="Main actions">
+      <button class="ai-assistant-toggle" type="button" aria-controls="ai-chat-panel"
+        [attr.aria-expanded]="isChatOpen" (click)="toggleChat()">
+        AI Assistant
+      </button>
+      <button class="start-button" routerLink="/startCheckIn">Start</button>
+    </nav>
+  </header>
+
+  <aside id="ai-chat-panel" class="chat-panel" [class.is-open]="isChatOpen"
+    [attr.aria-hidden]="!isChatOpen" aria-labelledby="chat-heading">
+    <section class="chat-card">
+      <h2 id="chat-heading">AI Assistant</h2>
+      <div class="chat-messages" role="log" aria-live="polite" aria-relevant="additions">
+        @for (entry of messages; track $index) {
+          <p class="chat-message" [class.user-message]="entry.role === 'user'"
+            [class.assistant-message]="entry.role === 'assistant'">
+            <span class="message-speaker">{{ entry.role === 'user' ? 'You' : 'Assistant' }}</span>
+            {{ entry.text }}
+          </p>
+        }
+        @if (isLoading) {
+          <p class="loading-message">Assistant is thinking...</p>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <p class="error-message" role="alert">{{ errorMessage }}</p>
+      }
+
+      <form class="chat-form" (ngSubmit)="sendMessage()">
+        <label class="visually-hidden" for="chat-message">Your message</label>
+        <input
+          id="chat-message"
+          name="message"
+          type="text"
+          [(ngModel)]="message"
+          placeholder="Ask a flight-related question"
+          autocomplete="off"
+          [disabled]="isLoading">
+        <button type="submit" [disabled]="isLoading || !message.trim()">Send</button>
+      </form>
+    </section>
+  </aside>
+
+  <router-outlet></router-outlet>
+</main>

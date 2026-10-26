@@ -15,6 +15,7 @@ import org.springframework.web.client.RestClientException;
 import com.jaya.flightreserv.flightreservation.dtos.ChatRequest;
 import com.jaya.flightreserv.flightreservation.dtos.ChatResponse;
 import com.jaya.flightreserv.flightreservation.services.AiProviderUnavailableException;
+import com.jaya.flightreserv.flightreservation.services.ProjectDataContextService;
 import com.jaya.flightreserv.flightreservation.services.OllamaChatService;
 
 @RestController
@@ -22,9 +23,13 @@ import com.jaya.flightreserv.flightreservation.services.OllamaChatService;
 @CrossOrigin
 public class ChatController {
     private final OllamaChatService chatService;
+    private final ProjectDataContextService projectDataContextService;
 
-    public ChatController(OllamaChatService chatService) {
+    public ChatController(
+            OllamaChatService chatService,
+            ProjectDataContextService projectDataContextService) {
         this.chatService = chatService;
+        this.projectDataContextService = projectDataContextService;
     }
 
     @PostMapping
@@ -32,7 +37,8 @@ public class ChatController {
         if (request == null || request.message() == null || request.message().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(new ChatResponse(chatService.reply(request.message())));
+        String projectDataContext = projectDataContextService.getContext();
+        return ResponseEntity.ok(new ChatResponse(chatService.reply(request.message(), projectDataContext)));
     }
 
     @ExceptionHandler(AiProviderUnavailableException.class)
